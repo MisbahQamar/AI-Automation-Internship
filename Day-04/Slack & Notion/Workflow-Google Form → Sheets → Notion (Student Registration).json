@@ -1,0 +1,121 @@
+{
+  "name": "Google Form → Sheets → Notion (Student Registration)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1h_RtALYbBqiivP8XDVZszmXsTMhaCKDbeEEAIK-TlHQ",
+          "mode": "list",
+          "cachedResultName": "Student Registration Responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h_RtALYbBqiivP8XDVZszmXsTMhaCKDbeEEAIK-TlHQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Form Response 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1h_RtALYbBqiivP8XDVZszmXsTMhaCKDbeEEAIK-TlHQ/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "4ae6f5be-2abb-4284-a37f-653032481f19",
+      "name": "Watch Student Registration Sheet",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "Pv4gSA5WjhxzLTQT",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "f1c389ee-06fe-4f3e-a44a-4a026049e2ac",
+          "mode": "list",
+          "cachedResultName": "Student Registrations",
+          "cachedResultUrl": "https://app.notion.com/p/cf4bdb6d47f341b6b2356f1cf1d06a30"
+        },
+        "title": "={{ $json.Name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.Email }}"
+            },
+            {
+              "key": "Course|select",
+              "selectValue": "={{ $json.Course }}"
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "={{ $json.Status }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        192,
+        0
+      ],
+      "id": "2a24966f-6ba1-4e9b-b738-4abf98624ef1",
+      "name": "Create a database page",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eDwjGAAE9vQTTxWy",
+          "name": "Notion account 5"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Watch Student Registration Sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "c8528ce4-0416-4990-8435-14465803d97c",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "Qy7Cyz5F3jRgHquU",
+  "tags": []
+}

@@ -1,0 +1,95 @@
+{
+  "name": "Workflow 1: Task Creation → Slack Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "oAuth2",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3b611bc0-467e-8067-80b8-000b46d66e6c",
+          "mode": "list",
+          "cachedResultName": "Tasks",
+          "cachedResultUrl": "https://app.notion.com/p/3b611bc0467e809eb0b1dbced5135c0e"
+        }
+      },
+      "id": "835a0a54-de13-4428-a332-df39cf7227d5",
+      "name": "New Task in Notion",
+      "type": "n8n-nodes-base.notionTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -160
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eDwjGAAE9vQTTxWy",
+          "name": "Notion account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#n8n-alerts"
+        },
+        "text": "=📌 New task added in Notion\nTask: {{ $json.Name }}\nStatus: {{ $json.Status }}\nDue date: {{ $json[\"Due date\"] || \"Not set\" }}",
+        "otherOptions": {}
+      },
+      "id": "d4038e6c-1cc5-484d-b5f6-e4f56fe30593",
+      "name": "Notify #n8n-alerts",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        -176,
+        -160
+      ],
+      "webhookId": "90432550-888e-442e-b1e4-94c07b4237db",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Task in Notion": {
+      "main": [
+        [
+          {
+            "node": "Notify #n8n-alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "d4a18797-3aed-4cf2-a61a-04554aeb9535",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "ymbFkAdk0mMwouYN",
+  "tags": []
+}
