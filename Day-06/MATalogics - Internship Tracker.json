@@ -1,0 +1,257 @@
+{
+  "name": "MATalogics - Internship Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblDcfjaWSPPDKARz"
+        },
+        "triggerField": "Status Modified",
+        "additionalFields": {}
+      },
+      "id": "2e34366d-84e7-482f-8f48-a354d8df8c33",
+      "name": "Subtask Record Updated",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.fields[\"Status\"] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "Done"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b8a2847c-6827-4f70-bb98-6494823866d7",
+      "name": "Is Subtask Done?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblvWq3i8fHqCPLsp"
+        },
+        "filterByFormula": "={{ \"{Intern Name} = '\" & $json.fields[\"Assigned To\"] & \"'\" }}",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "bbf2e9d4-ccc3-41fa-b0d0-fcedbf2edf2d",
+      "name": "Find Intern Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -16
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "new-count",
+              "name": "newTaskCount",
+              "value": "={{ ($json.fields[\"Task Count\"] || 0) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "207d0c30-b59a-4565-b982-24a296f32d29",
+      "name": "Increment Task Count",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblvWq3i8fHqCPLsp"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "value": {
+            "id": "={{ $json.id }}",
+            "Task Count": "={{ $json.newTaskCount }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Task Count",
+              "displayName": "Task Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "edd303c5-85ba-4e01-bf4e-796f5b25531c",
+      "name": "Update Performance Score",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        -16
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Subtask Record Updated": {
+      "main": [
+        [
+          {
+            "node": "Is Subtask Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Subtask Done?": {
+      "main": [
+        [
+          {
+            "node": "Find Intern Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Intern Record": {
+      "main": [
+        [
+          {
+            "node": "Increment Task Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Task Count": {
+      "main": [
+        [
+          {
+            "node": "Update Performance Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "4d27ef8e-7feb-49ba-88a0-7dfe8b3c9fa4",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "zRSsz3SqzRbfkzBM",
+  "tags": []
+}

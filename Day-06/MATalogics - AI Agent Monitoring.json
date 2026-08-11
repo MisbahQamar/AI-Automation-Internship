@@ -1,0 +1,100 @@
+{
+  "name": "MATalogics - AI Agent Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblqL3arW3KukqWZz"
+        },
+        "triggerField": "Deployment Status Modified",
+        "additionalFields": {}
+      },
+      "id": "e04eeae6-1b7e-4aee-acd8-b2ec925a3a07",
+      "name": "AI Agent Status Updated",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-alerts",
+          "mode": "name"
+        },
+        "text": "=AI Agent status change detected:\n*Agent:* {{ $json.fields[\"Agent Name\"] }}\n*Type:* {{ $json.fields[\"Type\"] }}\n*Deployment Status:* {{ $json.fields[\"Deployment Status\"] }}\n*Last Updated:* {{ $json.fields[\"Last Updated\"] }}",
+        "otherOptions": {}
+      },
+      "id": "21ead50f-4238-4612-a9e7-b4d72a28328e",
+      "name": "Notify Operations Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        224,
+        0
+      ],
+      "webhookId": "7a9dc14c-548a-4c61-b347-d874457160f6",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent Status Updated": {
+      "main": [
+        [
+          {
+            "node": "Notify Operations Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "e69f6f53-f0f2-4c45-aaac-5da697c0f555",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "7Dpt2ExbxMY9k7fE",
+  "tags": []
+}

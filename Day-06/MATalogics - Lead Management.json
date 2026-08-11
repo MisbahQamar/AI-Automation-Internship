@@ -1,0 +1,100 @@
+{
+  "name": "MATalogics - Lead Management",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblhi3vGqMvIRD4Uv"
+        },
+        "triggerField": "Created Time",
+        "additionalFields": {}
+      },
+      "id": "93b57a61-dd21-42be-9cd8-f31107660626",
+      "name": "New Lead Added",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-alerts",
+          "mode": "name"
+        },
+        "text": "=New lead captured in Airtable!\n*Name:* {{ $json.fields[\"Lead Name\"] }}\n*Source:* {{ $json.fields[\"Source\"] }}\n*Contact:* {{ $json.fields[\"Contact Number\"] }}\n*Interested Service:* {{ $json.fields[\"Interested Service\"] }}",
+        "otherOptions": {}
+      },
+      "id": "d69a241a-1943-4915-b397-e22081e0436a",
+      "name": "Notify Slack - New Lead",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        224,
+        0
+      ],
+      "webhookId": "edf1e1d1-b7e1-4dc7-bc31-3c15bf3f38e1",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Lead Added": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack - New Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "5f2804d0-1015-4b12-8559-59b11d95f76e",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "GXR6e576amAe4ZLA",
+  "tags": []
+}

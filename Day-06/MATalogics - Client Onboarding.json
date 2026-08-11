@@ -1,0 +1,207 @@
+{
+  "name": "MATalogics - Client Onboarding",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tbljVgc1AyfoxVdwP"
+        },
+        "triggerField": "Created Time",
+        "additionalFields": {}
+      },
+      "id": "0fc19b29-ed9f-4f87-ac2d-9e2b04841448",
+      "name": "Airtable Record Created - Clients",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "client-id",
+              "name": "generatedClientId",
+              "value": "=CL-{{ $now.toFormat(\"yyyyMMddHHmmss\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "74aaee6e-e546-41c5-aa51-63dd323d0a73",
+      "name": "Generate Client ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tbljVgc1AyfoxVdwP"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "value": {
+            "id": "={{ $json.id }}",
+            "Client ID": "={{ $json.generatedClientId }}"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client ID",
+              "displayName": "Client ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9d2e9f1c-6e21-4698-b40f-98327c331db6",
+      "name": "Write Client ID Back",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "n8n-alerts",
+          "mode": "name"
+        },
+        "text": "=New client onboarded!\n*Client ID:* {{ $json.fields[\"Client ID\"] }}\nPlease begin the onboarding checklist.",
+        "otherOptions": {}
+      },
+      "id": "909a1b17-f1ae-4c45-81cd-c9bacbba93dc",
+      "name": "Notify Team - Client Onboarded",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        672,
+        0
+      ],
+      "webhookId": "8aa1b125-eb71-4390-8137-72f9157e7322",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Airtable Record Created - Clients": {
+      "main": [
+        [
+          {
+            "node": "Generate Client ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Client ID": {
+      "main": [
+        [
+          {
+            "node": "Write Client ID Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Client ID Back": {
+      "main": [
+        [
+          {
+            "node": "Notify Team - Client Onboarded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "38e3d307-a637-4706-b9f1-c3dd7cc337d4",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "VlV6Fo8QuhTmwZYl",
+  "tags": []
+}

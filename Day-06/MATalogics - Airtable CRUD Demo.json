@@ -1,0 +1,294 @@
+{
+  "name": "MATalogics - Airtable CRUD Demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "2962fd07-1840-40f8-adea-efc4d8681fd1",
+      "name": "Run CRUD Demo",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblhi3vGqMvIRD4Uv"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "value": {
+            "Lead Name": "CRUD Demo Lead",
+            "Source": "Website",
+            "Contact Number": "+92 300 0000000",
+            "Interested Service": "n8n Automation Training"
+          },
+          "schema": [
+            {
+              "id": "Lead Name",
+              "displayName": "Lead Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Contact Number",
+              "displayName": "Contact Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Interested Service",
+              "displayName": "Interested Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ac64756-4778-4929-8328-797a480ec348",
+      "name": "1. Create Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblhi3vGqMvIRD4Uv"
+        },
+        "filterByFormula": "={{ \"{Lead Name} = '\" & $('1. Create Record').item.json.fields[\"Lead Name\"] & \"'\" }}",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "e0ab6842-bc80-473b-b5ca-28afb6330e21",
+      "name": "2. Search Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblhi3vGqMvIRD4Uv"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ],
+          "value": {
+            "id": "={{ $('1. Create Record').item.json.id }}",
+            "Source": "Referral",
+            "Interested Service": "n8n Automation Training (Updated)"
+          },
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Interested Service",
+              "displayName": "Interested Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1969a1fc-ca7d-432b-b6a8-6497de18e0e5",
+      "name": "3. Update Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "deleteRecord",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblhi3vGqMvIRD4Uv"
+        },
+        "id": "={{ $('1. Create Record').item.json.id }}"
+      },
+      "id": "b3b91d97-88cc-412f-802b-f091feacb8cd",
+      "name": "4. Delete Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run CRUD Demo": {
+      "main": [
+        [
+          {
+            "node": "1. Create Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Create Record": {
+      "main": [
+        [
+          {
+            "node": "2. Search Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Search Record": {
+      "main": [
+        [
+          {
+            "node": "3. Update Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Update Record": {
+      "main": [
+        [
+          {
+            "node": "4. Delete Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "b2f6c38b-9116-4b11-ad55-9018e8a700ab",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "H6Wgxlz6m618NW6q",
+  "tags": []
+}

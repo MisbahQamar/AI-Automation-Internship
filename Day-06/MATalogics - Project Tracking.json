@@ -1,0 +1,99 @@
+{
+  "name": "MATalogics - Project Tracking",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableOAuth2Api",
+        "baseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appfOEzmppBsZ2hde"
+        },
+        "tableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tblB9bWtzlyvgVPh6"
+        },
+        "triggerField": "Status Last Modified",
+        "additionalFields": {}
+      },
+      "id": "182a9efb-e296-44a7-a1ee-ef632da11602",
+      "name": "Project Record Updated",
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        0
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "misbahulqamar2014@gmail.com",
+        "subject": "=Project Update: {{ $json.fields[\"Project Name\"] }}",
+        "emailType": "text",
+        "message": "=Hi,\n\nThe status of your project \"{{ $json.fields[\"Project Name\"] }}\" has changed to: {{ $json.fields[\"Status\"] }}.\n\nAssigned to: {{ $json.fields[\"Assigned To\"] }}\nDeadline: {{ $json.fields[\"Deadline\"] }}\n\n— MATalogics",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "083be95c-e693-42d8-8f12-ea1ad08b7202",
+      "name": "Email Client - Status Update",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "webhookId": "f615f4a7-6a3b-461c-bf42-161c953493fc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5ocRqY0w0xVsLVJM",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Project Record Updated": {
+      "main": [
+        [
+          {
+            "node": "Email Client - Status Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "83d86bd3-c1fe-47f4-a644-d37e64005df5",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "Q7KbANR8RDfHoKzi",
+  "tags": []
+}
