@@ -1,0 +1,871 @@
+{
+  "name": "Client Onboarding Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "client-intake",
+        "options": {
+          "noResponseBody": false,
+          "responseData": "{\"status\":\"received\"}"
+        }
+      },
+      "id": "7ca781f7-1045-4c4e-a825-2fe30dcc4a32",
+      "name": "Vapi Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        288
+      ],
+      "webhookId": "e29f9500-65db-4abc-b968-e35442f039cd"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "clientName",
+              "value": "={{ $json.body?.clientName ?? $json.clientName ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "companyName",
+              "value": "={{ $json.body?.companyName ?? $json.companyName ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "email",
+              "value": "={{ $json.body?.email ?? $json.email ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "service",
+              "value": "={{ $json.body?.service ?? $json.service ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "description",
+              "value": "={{ $json.body.message.artifact.messages.filter(m => m.role === 'user').map(m => m.message).join(' ') }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "budget",
+              "value": "={{ Number($json.body?.budget ?? $json.budget ?? 0) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d0e56c4-eb2b-498f-b52b-5db21c775abd",
+      "name": "Normalize Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p1",
+              "name": "priority",
+              "value": "={{ $json.budget >= 500000 ? \"HIGH\" : ($json.budget >= 200000 ? \"MEDIUM\" : \"LOW\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "7e82d36d-97e0-4475-ba7b-491150ca8a59",
+      "name": "Compute Priority",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify this new client onboarding request.\nClient: {{ $json.clientName }}\nCompany: {{ $json.companyName }}\nService requested: {{ $json.service }}\nProject description: {{ $json.description }}\nBudget: PKR {{ $json.budget }}\nPriority (already computed): {{ $json.priority }}\n\nReturn:\n- service_category: a short category label for the requested service (e.g. \"Web & Mobile Development\", \"Branding & Design\", \"Marketing & SEO\", \"AI Automation\")\n- summary: one concise sentence summarizing what the client needs\n- next_action: one concise recommended next step for the team",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an intake analyst for an AI automation agency. Classify each new client request accurately and concisely. Always respond using the required structured format."
+        }
+      },
+      "id": "270a5cfd-0d58-476c-927b-0497cef08f3f",
+      "name": "AI Client Intake Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        672,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "1dce338e-79fe-4aa3-91da-92afc1c8db65",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        688,
+        512
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "vmOJbgz7jmgezWl7",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"client_name\": \"Sana\",\n  \"company_name\": \"ABC\",\n  \"email\": \"sana@example.com\",\n  \"service\": \"Website and mobile application\",\n  \"project_description\": \"Build a website and mobile application\",\n  \"budget\": 100000,\n  \"service_category\": \"Web & Mobile Development\",\n  \"summary\": \"ABC requires a website and mobile application.\",\n  \"next_action\": \"Schedule technical consultation\"\n}"
+      },
+      "id": "5e926349-ad12-4c9f-8283-8598cecdb263",
+      "name": "Classification Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "clientName",
+              "value": "={{ $json.output.client_name }}",
+              "type": "string"
+            },
+            {
+              "id": "r2",
+              "name": "companyName",
+              "value": "={{ $json.output.company_name }}",
+              "type": "string"
+            },
+            {
+              "id": "r3",
+              "name": "email",
+              "value": "={{ $json.output.email }}",
+              "type": "string"
+            },
+            {
+              "id": "r4",
+              "name": "service",
+              "value": "={{ $json.output.service }}",
+              "type": "string"
+            },
+            {
+              "id": "r5",
+              "name": "description",
+              "value": "={{ $json.output.project_description }}",
+              "type": "string"
+            },
+            {
+              "id": "r6",
+              "name": "budget",
+              "value": "={{ Number($json.output.budget ?? 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "r7",
+              "name": "priority",
+              "value": "={{ $('Compute Priority').item.json.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "r8",
+              "name": "serviceCategory",
+              "value": "={{ $json.output.service_category }}",
+              "type": "string"
+            },
+            {
+              "id": "r9",
+              "name": "summary",
+              "value": "={{ $json.output.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "r10",
+              "name": "nextAction",
+              "value": "={{ $json.output.next_action }}",
+              "type": "string"
+            },
+            {
+              "id": "r11",
+              "name": "createdAt",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bdec81f1-5cea-46ad-96ba-443f0ce2747c",
+      "name": "Build Client Record",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1024,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "appQYpHwJsSOHEPhb"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "tbln520DVu6LGwh69"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client Name": "={{ $json.clientName }}",
+            "Company": "={{ $json.companyName }}",
+            "Email": "={{ $json.email }}",
+            "Service": "={{ $json.service }}",
+            "Description": "={{ $json.description }}",
+            "Budget": "={{ $json.budget }}",
+            "Category": "={{ $json.serviceCategory }}",
+            "Priority": "={{ $json.priority }}",
+            "Summary": "={{ $json.summary }}",
+            "Next Action": "={{ $json.nextAction }}",
+            "Status": "New",
+            "Created At": "={{ $json.createdAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Next Action",
+              "displayName": "Next Action",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "In Progress",
+                  "value": "In Progress"
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "41378ed3-1efc-4411-83d1-bbf82e583b02",
+      "name": "Airtable - Create Client",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        288
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "qVmoAibxbK8x22WE",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "56d9cdd7-5d40-4ded-8fff-017dff9daf27"
+        },
+        "title": "={{ $('Build Client Record').item.json.companyName }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Client|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $('Build Client Record').item.json.clientName }}"
+            },
+            {
+              "key": "Email|email",
+              "type": "email",
+              "emailValue": "={{ $('Build Client Record').item.json.email }}"
+            },
+            {
+              "key": "Service|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $('Build Client Record').item.json.service }}"
+            },
+            {
+              "key": "Budget|number",
+              "type": "number",
+              "numberValue": "={{ $('Build Client Record').item.json.budget }}"
+            },
+            {
+              "key": "Priority|select",
+              "type": "select",
+              "selectValue": "={{ $('Build Client Record').item.json.priority }}"
+            },
+            {
+              "key": "Summary|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $('Build Client Record').item.json.summary }}"
+            },
+            {
+              "key": "Next Action|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $('Build Client Record').item.json.nextAction }}"
+            },
+            {
+              "key": "Status|select",
+              "type": "select",
+              "selectValue": "New"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2f2d5a65-ae70-4baa-9570-4ad987e2b8d7",
+      "name": "Notion - Create Client Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        288
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "eDwjGAAE9vQTTxWy",
+          "name": "Notion account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Build Client Record').item.json.priority }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "HIGH"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Build Client Record').item.json.priority }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "MEDIUM"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Build Client Record').item.json.priority }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "rightValue": "LOW"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Unclassified"
+        }
+      },
+      "id": "98249d2a-ad4b-4abb-8bf2-efeb9228d0ee",
+      "name": "Route by Priority",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1696,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BP67BFZK4",
+          "mode": "id"
+        },
+        "text": "=🔴 HIGH PRIORITY CLIENT\n*NEW CLIENT*\n{{ $('Build Client Record').item.json.clientName }} - {{ $('Build Client Record').item.json.companyName }}\nService: {{ $('Build Client Record').item.json.serviceCategory }}\nBudget: PKR {{ $('Build Client Record').item.json.budget }}\nPriority: HIGH\nAI Summary: {{ $('Build Client Record').item.json.summary }}\nNext Action: {{ $('Build Client Record').item.json.nextAction }}\n✅ Airtable + Notion records created successfully.",
+        "otherOptions": {}
+      },
+      "id": "e3ca1d47-1cbe-4a3d-9d68-fcca9f3962fc",
+      "name": "Slack - High Priority Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1920,
+        0
+      ],
+      "webhookId": "1fb93b94-22bd-40ee-9b30-7ab2bf5a78ce",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BP67BFZK4",
+          "mode": "id"
+        },
+        "text": "=🟡 MEDIUM PRIORITY CLIENT\n*NEW CLIENT*\n{{ $('Build Client Record').item.json.clientName }} - {{ $('Build Client Record').item.json.companyName }}\nService: {{ $('Build Client Record').item.json.serviceCategory }}\nBudget: PKR {{ $('Build Client Record').item.json.budget }}\nPriority: MEDIUM\nAI Summary: {{ $('Build Client Record').item.json.summary }}\nNext Action: {{ $('Build Client Record').item.json.nextAction }}\n✅ Airtable + Notion records created successfully.",
+        "otherOptions": {}
+      },
+      "id": "fba141e5-2d31-4568-a4d0-9582af0763f1",
+      "name": "Slack - Medium Priority Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1920,
+        192
+      ],
+      "webhookId": "0afbe5d1-60f6-4e4d-a9cd-74960107e553",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BP67BFZK4",
+          "mode": "id"
+        },
+        "text": "=🟢 STANDARD CLIENT\n*NEW CLIENT*\n{{ $('Build Client Record').item.json.clientName }} - {{ $('Build Client Record').item.json.companyName }}\nService: {{ $('Build Client Record').item.json.serviceCategory }}\nBudget: PKR {{ $('Build Client Record').item.json.budget }}\nPriority: LOW\nAI Summary: {{ $('Build Client Record').item.json.summary }}\nNext Action: {{ $('Build Client Record').item.json.nextAction }}\n✅ Airtable + Notion records created successfully.",
+        "otherOptions": {}
+      },
+      "id": "f1f3d916-a87b-47a1-a744-2b5f0c898bfd",
+      "name": "Slack - Standard Client Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1920,
+        384
+      ],
+      "webhookId": "db3e71e8-46e4-49e8-8458-6e921e2d00ec",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BP67BFZK4",
+          "mode": "id"
+        },
+        "text": "=⚠️ Could not determine priority for {{ $('Build Client Record').item.json.companyName }}. Please review manually.",
+        "otherOptions": {}
+      },
+      "id": "118f63d8-5e91-4a9a-b3d8-b91616824821",
+      "name": "Slack - Manual Review Needed",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1920,
+        576
+      ],
+      "webhookId": "51d7081a-fcd3-455d-95a1-5501553d81ee",
+      "credentials": {
+        "slackApi": {
+          "id": "UUE0BAYVQVovFJi4",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Vapi Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Data": {
+      "main": [
+        [
+          {
+            "node": "Compute Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Priority": {
+      "main": [
+        [
+          {
+            "node": "AI Client Intake Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Client Intake Agent": {
+      "main": [
+        [
+          {
+            "node": "Build Client Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Client Intake Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classification Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Client Intake Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Client Record": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Create Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Create Client": {
+      "main": [
+        [
+          {
+            "node": "Notion - Create Client Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion - Create Client Page": {
+      "main": [
+        [
+          {
+            "node": "Route by Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Priority": {
+      "main": [
+        [
+          {
+            "node": "Slack - High Priority Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Medium Priority Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Standard Client Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Manual Review Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "c660ea07-61a3-4001-bf91-2f29f8382a57",
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e028eb492e94916a6de7cc6223807e0fbacb863a06999c7bcea5467cbf3418e"
+  },
+  "nodeGroups": [],
+  "id": "ixHSRI2qhp7J2MwA",
+  "tags": []
+}
